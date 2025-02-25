@@ -6,7 +6,7 @@ import os
 #required: sudo apt-get install ffmpeg python3-tk
 
 MAX_FRQ = 2000
-SLICE_SIZE = 0.15
+SLICE_SIZE = 0.150
 
 def main(start_time, file):
     print("Importing {}".format(file))
