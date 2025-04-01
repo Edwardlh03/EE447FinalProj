@@ -8,22 +8,23 @@ from scipy.signal import find_peaks
 # a pandas dataframe.
 
 import numpy as np
-X=np.arange(start=0,stop=20,step=0.01) # 20 seconds long signal sampled every 0.01[s]
+#X=np.arange(start=0,stop=20,step=0.01) # 20 seconds long signal sampled every 0.01[s]
 
 # Signal components given by [frequency, phase shift, Amplitude]
-GeneratedSignal=np.array([[5.50, 1.60, 1.0], [10.2, 0.25, 0.5], [18.3, 0.70, 0.2]])
+#GeneratedSignal=np.array([[5.50, 1.60, 1.0], [10.2, 0.25, 0.5], [18.3, 0.70, 0.2]])
 
-Y=np.zeros(len(X))
+#Y=np.zeros(len(X))
 # Let's add the components one by one
-for P in GeneratedSignal:
+#for P in GeneratedSignal:
     Y+=np.cos(2*np.pi*P[0]*X-P[1])*P[2] 
 
 # Let's add some gaussian random noise (mu=0, sigma=noise):
-noise=0.5
-Y+=np.random.randn(len(X))*noise
+#noise=0.5
+#Y+=np.random.randn(len(X))*noise
 
 # Let's build the dataframe:
-dummy_data=pd.DataFrame({'X':X,'Y':Y})
+#dummy_data=pd.DataFrame({'X':X,'Y':Y})
+dummy_data=data #HERE WE NEED TO CORRECTLY INPUT THE DATA INTO THE dummy_data array so that the peak frequencies can be fetched.
 print('Dummy dataframe: ')
 print(dummy_data.head())
 
