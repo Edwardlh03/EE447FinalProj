@@ -82,3 +82,15 @@ print("                      {:9.2%}".format(rate_reported / RATE))
 print("    Skipped         = {:5d}".format(skips))
 print("    Repeats         = {:5d}".format(repeats))
 print("    Conversion Rate = {:8.2f} sps   (estimated)".format(rate_actual))
+import numpy as np
+
+# Convert raw ADC values to voltage
+data = np.array(data) * (4.096 / 32767)  # Convert ADC values to voltage
+
+# Save data to a file (optional for debugging)
+np.savetxt("adc_data.csv", data, delimiter=",")
+
+# Ensure this script can be imported properly
+if __name__ == "__main__":
+    print("ADC Data Collection Complete")
+
