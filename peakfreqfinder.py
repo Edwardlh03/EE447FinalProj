@@ -5,7 +5,7 @@ from scipy.fft import fft, fftfreq
 from scipy.signal import find_peaks
 
 # Import ADC script or read data from it
-from adc_script import data, SAMPLES, RATE  # Import data from the second script
+from continousread import data, SAMPLES, RATE  # Import data from the second script
 
 # Generate time axis based on sampling rate
 X = np.arange(0, SAMPLES / RATE, 1 / RATE)  # Create time vector
