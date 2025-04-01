@@ -1,96 +1,57 @@
-# SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
-# SPDX-License-Identifier: MIT
-
 import time
 import board
 import busio
+import numpy as np
 import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.ads1x15 import Mode
 from adafruit_ads1x15.analog_in import AnalogIn
 
-# Data collection setup
-RATE = 3300
-SAMPLES = 1000
+# Sampling configuration
+RATE = 1000  # Sampling rate in Hz
+DURATION = 5  # Collect data for 5 seconds
+SAMPLES = RATE * DURATION  # Total samples per cycle
 
-# Create the I2C bus with a fast frequency
-# NOTE: Your device may not respect the frequency setting
-#       Raspberry Pis must change this in /boot/config.txt
-
+# Initialize I2C and ADC
 i2c = busio.I2C(board.SCL, board.SDA, frequency=1000000)
-
-# Create the ADC object using the I2C bus
 ads = ADS.ADS1115(i2c)
-
-# Create single-ended input on channel 0
 chan0 = AnalogIn(ads, ADS.P0)
 
-# ADC Configuration
+# Configure ADC
 ads.mode = Mode.CONTINUOUS
 ads.data_rate = RATE
 
-# First ADC channel read in continuous mode configures device
-# and waits 2 conversion cycles
+# Initial read to configure the ADC
 _ = chan0.value
+sample_interval = 1.0 / RATE
 
-sample_interval = 1.0 / ads.data_rate
+while True:
+    data = np.zeros(SAMPLES)  # Initialize data array
+    start_time = time.monotonic()
+    time_next_sample = start_time + sample_interval
 
-repeats = 0
-skips = 0
+    print("Collecting data for 5 seconds...")
 
-data = [None] * SAMPLES
+    for i in range(SAMPLES):
+        while time.monotonic() < time_next_sample:
+            pass  # Wait for the next sample time
 
-start = time.monotonic()
-time_next_sample = start + sample_interval
+        data[i] = chan0.value  # Read ADC value
+        time_next_sample += sample_interval
 
-# Read the same channel over and over
-for i in range(SAMPLES):
-    # Wait for expected conversion finish time
-    while time.monotonic() < (time_next_sample):
-        pass
+    end_time = time.monotonic()
+    print(f"Data collection complete in {end_time - start_time:.2f} seconds.")
 
-    # Read conversion value for ADC channel
-    data[i] = chan0.value
+    # Convert ADC values to voltage
+    voltage_data = data * (4.096 / 32767)
 
-    # Loop timing
-    time_last_sample = time.monotonic()
-    time_next_sample = time_next_sample + sample_interval
-    if time_last_sample > (time_next_sample + sample_interval):
-        skips += 1
-        time_next_sample = time.monotonic() + sample_interval
+    # Save or pass data for FFT analysis
+    np.savetxt("adc_data.csv", voltage_data, delimiter=",")
+    
+    # Call FFT script automatically (optional, can be done externally)
+    import subprocess
+    subprocess.run(["python3", "peakfreqfinder.py"])
 
-    # Detect repeated values due to over polling
-    if data[i] == data[i - 1]:
-        repeats += 1
+    # Pause for a moment before next cycle (if needed)
+    time.sleep(1)
 
-end = time.monotonic()
-total_time = end - start
-
-rate_reported = SAMPLES / total_time
-rate_actual = (SAMPLES - repeats) / total_time
-# NOTE: leave input floating to pickup some random noise
-#       This cannot estimate conversion rates higher than polling rate
-
-print("Took {:5.3f} s to acquire {:d} samples.".format(total_time, SAMPLES))
-print("")
-print("Configured:")
-print("    Requested       = {:5d}    sps".format(RATE))
-print("    Reported        = {:5d}    sps".format(ads.data_rate))
-print("")
-print("Actual:")
-print("    Polling Rate    = {:8.2f} sps".format(rate_reported))
-print("                      {:9.2%}".format(rate_reported / RATE))
-print("    Skipped         = {:5d}".format(skips))
-print("    Repeats         = {:5d}".format(repeats))
-print("    Conversion Rate = {:8.2f} sps   (estimated)".format(rate_actual))
-import numpy as np
-
-# Convert raw ADC values to voltage
-data = np.array(data) * (4.096 / 32767)  # Convert ADC values to voltage
-
-# Save data to a file (optional for debugging)
-np.savetxt("adc_data.csv", data, delimiter=",")
-
-# Ensure this script can be imported properly
-if __name__ == "__main__":
-    print("ADC Data Collection Complete")
 
