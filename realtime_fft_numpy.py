@@ -63,7 +63,7 @@ try:
         peak_idx = np.argmax(fft_vals)
         peak_freq = freqs[peak_idx]
         print(f"Peak frequency: {peak_freq:.2f} Hz")
-	temp_freq = str(round(f,1))
+        temp_freq = str(round(f,1))
 	lcd.write_string("frequency:" + temp_freq)
         # === Optional: Plot the FFT Spectrum ===
         #if PLOT:
