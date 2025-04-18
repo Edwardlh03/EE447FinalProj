@@ -31,22 +31,21 @@ print("F: ADS configured, now LCD…")
 
 
 print("I: preparing GPIO/LCD setup")
-import RPi.GPIO as GPIO
 from RPLCD.gpio import CharLCD
+import RPi.GPIO as GPIO
 
-# Ensure physical‑pin numbering
-if GPIO.getmode() is None:
-    GPIO.setmode(GPIO.BOARD)
+# No explicit setmode(); Blinka set BCM already.
 
 lcd = CharLCD(
-    pin_rs=37,
+    pin_rs=26,           # BCM 26 = physical 37
     pin_rw=None,
-    pin_e=35,
-    pins_data=[33, 31, 29, 23],
-    numbering_mode=GPIO.BOARD,
+    pin_e=19,            # BCM 19 = physical 35
+    pins_data=[13, 6, 5, 11],  # BCM 13,6,5,11 = physical 33,31,29,23
+    numbering_mode=GPIO.BCM,
     cols=16,
     rows=2,
 )
+
 
 print("K: LCD ready!")
 
