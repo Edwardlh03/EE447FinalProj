@@ -28,28 +28,35 @@ chan          = AnalogIn(ads, ADS.P0)
 print("F: ADS configured, now LCD…")
 
 
-print("I: setting GPIO mode")
 import RPi.GPIO as GPIO
 from RPLCD.gpio import CharLCD
 
-# 1) If no mode has been set yet, pick BOARD and set it.
-#    Otherwise, just reuse the existing mode.
-mode = GPIO.getmode()
-if mode is None:
-    GPIO.setmode(GPIO.BOARD)
-    mode = GPIO.BOARD
+print("I: preparing GPIO/LCD setup")
+# Optional: clear out any previous state so we can set mode cleanly
+GPIO.cleanup()
 
-# 2) Build your LCD with that same mode (no further setmode calls!)
+# Try to set BOARD mode, but if it was already set by blinka or another import, ignore the error
+try:
+    GPIO.setmode(GPIO.BOARD)
+    print("J: GPIO mode set to BOARD")
+except ValueError:
+    # mode was already set to something—just reuse it
+    current = GPIO.getmode()
+    print(f"J: GPIO mode already set (mode={current}), skipping setmode()")
+
+# Now instantiate the LCD using that same numbering mode
+mode = GPIO.getmode() or GPIO.BOARD
 lcd = CharLCD(
     pin_rs=37,
-    pin_rw=None,            # if you didn’t wire RW
+    pin_rw=None,            # if RW is not wired
     pin_e=35,
     pins_data=[33, 31, 29, 23],
-    numbering_mode=mode,    # reuse the mode we just set (or found)
+    numbering_mode=mode,
     cols=16,
     rows=2,
 )
-print("K: LCD ready")
+print("K: LCD ready!")
+
 
 
 # Warm-up read
