@@ -28,33 +28,26 @@ chan          = AnalogIn(ads, ADS.P0)
 print("F: ADS configured, now LCD…")
 
 
+
+
+print("I: preparing GPIO/LCD setup")
 import RPi.GPIO as GPIO
 from RPLCD.gpio import CharLCD
 
-print("I: preparing GPIO/LCD setup")
-# Optional: clear out any previous state so we can set mode cleanly
-GPIO.cleanup()
-
-# Try to set BOARD mode, but if it was already set by blinka or another import, ignore the error
-try:
+# Ensure physical‑pin numbering
+if GPIO.getmode() is None:
     GPIO.setmode(GPIO.BOARD)
-    print("J: GPIO mode set to BOARD")
-except ValueError:
-    # mode was already set to something—just reuse it
-    current = GPIO.getmode()
-    print(f"J: GPIO mode already set (mode={current}), skipping setmode()")
 
-# Now instantiate the LCD using that same numbering mode
-mode = GPIO.getmode() or GPIO.BOARD
 lcd = CharLCD(
     pin_rs=37,
-    pin_rw=None,            # if RW is not wired
+    pin_rw=None,
     pin_e=35,
     pins_data=[33, 31, 29, 23],
-    numbering_mode=mode,
+    numbering_mode=GPIO.BOARD,
     cols=16,
     rows=2,
 )
+
 print("K: LCD ready!")
 
 
