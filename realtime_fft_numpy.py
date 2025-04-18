@@ -1,36 +1,43 @@
-import time
-import board
-import busio
+print("A: start imports")
+import time, board, busio
 import numpy as np
 import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
 from adafruit_ads1x15.ads1x15 import Mode
-from numpy.fft import fft, fftfreq  # Use numpy's FFT functions
+from numpy.fft import fft, fftfreq
 from RPLCD.gpio import CharLCD
 import RPi.GPIO as GPIO
+print("B: imports done")
 
-
-# === Configuration ===
-SAMPLES = 512        # Must be a power of 2 for FFT
-RATE = 860           # Maximum for ADS1115
-GAIN = 1             # Gain setting for ADS1115 (adjust if needed)
-PLOT = False         # Set to True to display the FFT spectrum
-
-# === Setup ADC ===
+print("C: initializing I2C…")
 i2c = busio.I2C(board.SCL, board.SDA)
+print("D: I2C ready")
+
+print("E: initializing ADS1115…")
 ads = ADS.ADS1115(i2c)
+print("F: ADS1115 ready")
+
+print("G: configuring ADS1115…")
 ads.mode = Mode.CONTINUOUS
 ads.data_rate = RATE
 ads.gain = GAIN
 chan = AnalogIn(ads, ADS.P0)
+print("H: ADS configured, about to init LCD")
+
+print("I: setting GPIO mode")
+GPIO.setmode(GPIO.BOARD)       # or GPIO.BCM, see below
+print("J: creating CharLCD instance")
 lcd = CharLCD(
-    cols=16,
-    rows=2,
     pin_rs=37,
+    pin_rw=None,               # add this if RW pin isn’t wired
     pin_e=35,
     pins_data=[33, 31, 29, 23],
-    numbering_mode=GPIO.BCM  # or GPIO.BCM if that’s what you want to use
+    numbering_mode=GPIO.BOARD, # must match the pin scheme you used
+    cols=16,
+    rows=2
 )
+print("K: LCD ready")
+
 
 # Warm-up read
 _ = chan.value
@@ -70,7 +77,7 @@ try:
         peak_idx = np.argmax(fft_vals)
         peak_freq = freqs[peak_idx]
         print(f"Peak frequency: {peak_freq:.2f} Hz")
-        temp_freq = str(round(f,1))
+        temp_freq = str(round(peak_freq, 1))
         lcd.write_string("frequency:" + temp_freq)
         # === Optional: Plot the FFT Spectrum ===
         #if PLOT:
