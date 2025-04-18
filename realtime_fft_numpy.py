@@ -6,7 +6,9 @@ import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
 from adafruit_ads1x15.ads1x15 import Mode
 from numpy.fft import fft, fftfreq  # Use numpy's FFT functions
-from RPLCD import CharLCD
+from RPLCD.gpio import CharLCD
+import RPi.GPIO as GPIO
+
 
 # === Configuration ===
 SAMPLES = 512        # Must be a power of 2 for FFT
@@ -21,10 +23,15 @@ ads.mode = Mode.CONTINUOUS
 ads.data_rate = RATE
 ads.gain = GAIN
 chan = AnalogIn(ads, ADS.P0)
-lcd = CharLCD(Cols=16, rows=2, pins_rs=37, pin_e=35, pins_data= [33, 31, 29, 23])
-lcd.write_string(u'initial')
-time.sleep(0.5)
-lcd.clear()
+lcd = CharLCD(
+    cols=16,
+    rows=2,
+    pin_rs=37,
+    pin_e=35,
+    pins_data=[33, 31, 29, 23],
+    numbering_mode=GPIO.BCM  # or GPIO.BCM if that’s what you want to use
+)
+
 # Warm-up read
 _ = chan.value
 sample_interval = 1.0 / RATE
@@ -64,7 +71,7 @@ try:
         peak_freq = freqs[peak_idx]
         print(f"Peak frequency: {peak_freq:.2f} Hz")
         temp_freq = str(round(f,1))
-	lcd.write_string("frequency:" + temp_freq)
+        lcd.write_string("frequency:" + temp_freq)
         # === Optional: Plot the FFT Spectrum ===
         #if PLOT:
          #   plt.clf()
