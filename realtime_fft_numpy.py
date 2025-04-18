@@ -30,16 +30,25 @@ print("F: ADS configured, now LCD…")
 
 
 print("I: setting GPIO mode")
-GPIO.setmode(GPIO.BOARD)       # or GPIO.BCM, see below
-print("J: creating CharLCD instance")
+import RPi.GPIO as GPIO
+from RPLCD.gpio import CharLCD
+
+# 1) If no mode has been set yet, pick BOARD and set it.
+#    Otherwise, just reuse the existing mode.
+mode = GPIO.getmode()
+if mode is None:
+    GPIO.setmode(GPIO.BOARD)
+    mode = GPIO.BOARD
+
+# 2) Build your LCD with that same mode (no further setmode calls!)
 lcd = CharLCD(
     pin_rs=37,
-    pin_rw=None,               # add this if RW pin isn’t wired
+    pin_rw=None,            # if you didn’t wire RW
     pin_e=35,
     pins_data=[33, 31, 29, 23],
-    numbering_mode=GPIO.BOARD, # must match the pin scheme you used
+    numbering_mode=mode,    # reuse the mode we just set (or found)
     cols=16,
-    rows=2
+    rows=2,
 )
 print("K: LCD ready")
 
