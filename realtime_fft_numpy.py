@@ -1,4 +1,3 @@
-print("A: start imports")
 import time, board, busio
 import numpy as np
 import adafruit_ads1x15.ads1115 as ADS
@@ -7,22 +6,28 @@ from adafruit_ads1x15.ads1x15 import Mode
 from numpy.fft import fft, fftfreq
 from RPLCD.gpio import CharLCD
 import RPi.GPIO as GPIO
-print("B: imports done")
 
-print("C: initializing I2C…")
+# === Configuration (must be first!) ===
+SAMPLES = 512
+RATE    = 860
+GAIN    = 1
+
+print("A: imports and config done")
+
+# === Setup ADC ===
+print("B: initializing I2C…")
 i2c = busio.I2C(board.SCL, board.SDA)
-print("D: I2C ready")
+print("C: I2C ready")
 
-print("E: initializing ADS1115…")
+print("D: initializing ADS1115…")
 ads = ADS.ADS1115(i2c)
-print("F: ADS1115 ready")
+print("E: ADS ready — setting mode & rate")
+ads.mode      = Mode.CONTINUOUS
+ads.data_rate = RATE       # now RATE is defined
+ads.gain      = GAIN
+chan          = AnalogIn(ads, ADS.P0)
+print("F: ADS configured, now LCD…")
 
-print("G: configuring ADS1115…")
-ads.mode = Mode.CONTINUOUS
-ads.data_rate = RATE
-ads.gain = GAIN
-chan = AnalogIn(ads, ADS.P0)
-print("H: ADS configured, about to init LCD")
 
 print("I: setting GPIO mode")
 GPIO.setmode(GPIO.BOARD)       # or GPIO.BCM, see below
