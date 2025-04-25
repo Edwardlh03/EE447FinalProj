@@ -79,66 +79,39 @@ print("Press Ctrl+C to stop.\n")
 print("H: entering while")
 try:
     while True:
-        # === Collect Samples ===
+        # — collect samples —
         data = []
-        next_sample_time = time.monotonic() + sample_interval
+        next_t = time.monotonic() + sample_interval
         for _ in range(SAMPLES):
-            # Wait until it's time for the next sample
-            while time.monotonic() < next_sample_time:
+            while time.monotonic() < next_t:
                 pass
-            val = chan.value
-            data.append(val)
-            next_sample_time += sample_interval
+            data.append(chan.value)
+            next_t += sample_interval
 
-        # === Convert raw data to voltage (optional conversion) ===
-        # Here, we use the relation: raw_value * (chan.voltage / chan.value)
-        # This scaling assumes linearity across the ADC range.
-        voltages = [v * chan.voltage / chan.value for v in data]
+        # — to volts & zero-center —
+        volts = np.array(data) * chan.voltage / chan.value
+        volts -= volts.mean()
 
-        # === Preprocess: Zero-center the signal ===
-        samples = np.array(voltages)
-        samples -= np.mean(samples)
+        # — FFT & find peak —
+        spectrum = np.abs(fft(volts)[:SAMPLES//2])
+        freqs    = fftfreq(SAMPLES, d=1.0/RATE)[:SAMPLES//2]
+        idx      = int(np.argmax(spectrum))
+        peak_hz  = freqs[idx]
 
-        # === Compute FFT using NumPy ===
-        fft_vals = fft(samples)
-        fft_vals = np.abs(fft_vals[:SAMPLES // 2])  # Single-sided FFT (magnitude)
-        freqs = fftfreq(SAMPLES, d=1.0 / RATE)[:SAMPLES // 2]  # Frequency bins
-
-        # === Identify Peak Frequency ===
-        peak_idx = np.argmax(fft_vals)
-        peak_freq = freqs[peak_idx]
-        print(f"Peak frequency: {peak_freq:.2f} Hz")
+        # — map to note —
         note = freq_to_note(peak_hz)
         display = note if note else "--"
 
         print(f"Detected: {peak_hz:.1f} Hz → {display}")
-       # after you compute peak_freq ...
-        temp = f"{peak_freq:.1f} Hz"
 
-# clear or home
-        print("I: about to attempt LCD clear")
-        lcd.clear()               # reset display and cursor
-
-# optional: write a label on the first line
-        print("J: about to attempt LCD write")
-        lcd.write_string("Peak freq:")
-# move to second line
+        # — update LCD —
+        lcd.clear()
+        lcd.write_string("Note:")
         lcd.cursor_pos = (1, 0)
-# write the number
-        lcd.write_string(temp)
+        lcd.write_string(display)
 
-        # === Optional: Plot the FFT Spectrum ===
-        #if PLOT:
-         #   plt.clf()
-          #  plt.plot(freqs, fft_vals)
-           # plt.title(f"Live Spectrum - Peak: {peak_freq:.2f} Hz")
-            #plt.xlabel("Frequency (Hz)")
-            #plt.ylabel("Amplitude")
-            #plt.grid(True)
-            #plt.pause(0.01)
-
-        # Short pause between iterations
         time.sleep(0.2)
+
 
 except KeyboardInterrupt:
     print("\nStopped.")
