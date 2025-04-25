@@ -58,6 +58,7 @@ sample_interval = 1.0 / RATE
 print(f"Sampling {SAMPLES} points at {RATE} sps (approx. {SAMPLES / RATE:.2f} seconds window)")
 print("Press Ctrl+C to stop.\n")
 
+print("H: entering while")
 try:
     while True:
         # === Collect Samples ===
@@ -93,9 +94,11 @@ try:
         temp = f"{peak_freq:.1f} Hz"
 
 # clear or home
+        print("I: about to attempt LCD clear")
         lcd.clear()               # reset display and cursor
 
 # optional: write a label on the first line
+        print("J: about to attempt LCD write")
         lcd.write_string("Peak freq:")
 # move to second line
         lcd.cursor_pos = (1, 0)
