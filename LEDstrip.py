@@ -5,7 +5,7 @@ from adafruit_ads1x15.analog_in import AnalogIn
 from adafruit_ads1x15.ads1x15 import Mode
 from numpy.fft import fft, fftfreq
 import math
-import neopixel
+import neopixel_spi as neopixel
 import colorsys   # <--- for rainbow
 
 # === Configuration (must be first!) ===
@@ -17,7 +17,7 @@ NUM_PIXELS = 144             # Set to however many LEDs are in your strip
 
 # WS2812B strip setup
 SPI_PORT = board.SPI()  # This uses hardware SPI (SCLK + MOSI)
-pixels = neopixel.NeoPixel_SPI(SPI_PORT, NUM_PIXELS, brightness=0.5, auto_write=False, pixel_order=neopixel.GRB)
+pixels = neopixel.NeoPixel_SPI(board.SPI(), NUM_PIXELS, brightness=0.5, auto_write=False, pixel_order=neopixel.GRB)
 
 # Tolerance and lookup for note mapping
 SEMITONE_TOLERANCE = 0.5
