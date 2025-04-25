@@ -10,7 +10,7 @@ from numpy.fft import fft, fftfreq
 SAMPLES = 512
 RATE    = 860
 GAIN    = 1
-
+SEMITONE_TOLERANCE = 0.5 
 NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F',
               'F#', 'G', 'G#', 'A', 'A#', 'B']
               
