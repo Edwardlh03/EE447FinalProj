@@ -95,10 +95,15 @@ try:
         print(f"Detected: {peak_freq:.1f} Hz → {display}")
 
         # === Update LCD ===
+               # — update LCD —
         lcd.clear()
-        lcd.write_string("Note:")
+        time.sleep(0.05)               # give the LCD time to process the clear
+        # Line 1: note (or “--” if none)
+        lcd.write_string(display.ljust(16))
+        # Line 2: frequency in Hz
         lcd.cursor_pos = (1, 0)
-        lcd.write_string(display)
+        lcd.write_string(f"{peak_freq:5.1f} Hz".ljust(16))
+
 
         time.sleep(0.2)
 
