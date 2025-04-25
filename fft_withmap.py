@@ -4,7 +4,7 @@ import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
 from adafruit_ads1x15.ads1x15 import Mode
 from numpy.fft import fft, fftfreq
-
+import math
 
 # === Configuration (must be first!) ===
 SAMPLES = 512
