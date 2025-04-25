@@ -5,7 +5,7 @@ from adafruit_ads1x15.analog_in import AnalogIn
 from adafruit_ads1x15.ads1x15 import Mode
 from numpy.fft import fft, fftfreq
 import math
-import neopixel_spi as neopixel 
+import neopixel
 import colorsys   # <--- for rainbow
 
 # === Configuration (must be first!) ===
