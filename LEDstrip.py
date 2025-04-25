@@ -13,7 +13,7 @@ SAMPLES = 512
 RATE = 860
 GAIN = 1
 PIXEL_PIN = board.D18       # GPIO18 (physical 12) is common for Neopixels
-NUM_PIXELS = 30             # Set to however many LEDs are in your strip
+NUM_PIXELS = 144             # Set to however many LEDs are in your strip
 
 # WS2812B strip setup
 pixels = neopixel.NeoPixel(PIXEL_PIN, NUM_PIXELS, brightness=0.5, auto_write=False)
