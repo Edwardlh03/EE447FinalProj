@@ -1,4 +1,4 @@
-can you change this so that it maps frequencys from range 100 to 440 to their corresponding musical note and the print statement prints the note that is being sampled instead of the frequency and allow for some margin of error? import time, board, busio 
+import time, board, busio 
 import numpy as np
 import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
